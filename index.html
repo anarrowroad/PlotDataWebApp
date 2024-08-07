@@ -3,47 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Current Time</title>
+    <title>Bluetooth Example</title>
     <style>
         body {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+            color: #333;
         }
-        .clock {
-            font-size: 2rem;
-            font-weight: bold;
-            background: #333;
-            color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .output {
+            font-size: 1.2rem;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="clock" id="clock"></div>
+    <h1>Bluetooth Data Reader</h1>
+    <button id="connectButton">Connect to Bluetooth Device</button>
+    <div class="output" id="output">No data yet</div>
 
     <script>
-        function updateTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const timeString = `${hours}:${minutes}:${seconds}`;
-            
-            document.getElementById('clock').textContent = timeString;
-        }
+        const connectButton = document.getElementById('connectButton');
+        const output = document.getElementById('output');
 
-        // Update time every second
-        setInterval(updateTime, 1000);
+        connectButton.addEventListener('click', async () => {
+            try {
+                // Request Bluetooth device
+                const device = await navigator.bluetooth.requestDevice({
+                    // Filter by a specific Bluetooth service
+                    // Replace with your service UUID or remove filters to see all devices
+                    filters: [{ services: ['battery_service'] }]
+                });
 
-        // Initial call to set the time immediately on page load
-        updateTime();
+                // Connect to the GATT server
+                const server = await device.gatt.connect();
+                console.log('Connected to', device.name);
+
+                // Get the battery service
+                const service = await server.getPrimaryService('battery_service');
+
+                // Get the battery level characteristic
+                const characteristic = await service.getCharacteristic('battery_level');
+
+                // Read the battery level
+                const value = await characteristic.readValue();
+                const batteryLevel = value.getUint8(0);
+
+                // Display the battery level
+                output.textContent = `Battery level is ${batteryLevel}%`;
+            } catch (error) {
+                console.error('Error:', error);
+                output.textContent = 'Failed to connect or read data';
+            }
+        });
     </script>
 </body>
 </html>
