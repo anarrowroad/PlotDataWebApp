@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>Current Time</title>
     <style>
         body {
             display: flex;
@@ -13,15 +13,37 @@
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            color: #333;
         }
-        .message {
+        .clock {
             font-size: 2rem;
             font-weight: bold;
+            background: #333;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
-    <div class="message">Hello, World!</div>
+    <div class="clock" id="clock"></div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+
+        // Initial call to set the time immediately on page load
+        updateTime();
+    </script>
 </body>
 </html>
